@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2026 CyberGaar (Omer Rastgar)
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+pre-commit:
+  parallel: false
+  commands:
+    staged-task-allowlist:
+      run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-staged-allowlist.ps1
+    phase-zero-validation:
+      run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-phase0.ps1
+    staged-secret-scan:
+      run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-staged-gitleaks.ps1
+
+pre-push:
+  parallel: false
+  commands:
+    public-disclosure-gate:
+      run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-public-disclosure.ps1
+    phase-zero-validation:
+      run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-phase0.ps1

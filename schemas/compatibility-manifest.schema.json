@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/CyberGaar/Studio/schemas/compatibility-manifest.schema.json",
+  "title": "CyberGaar Studio release compatibility manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema_version", "platform", "services"],
+  "properties": {
+    "$schema": { "type": "string", "minLength": 1 },
+    "schema_version": { "const": "1.0.0" },
+    "platform": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "status"],
+      "properties": {
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "status": { "enum": ["pre-release", "released", "unsupported"] }
+      }
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "version", "status", "image", "digest"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+          "status": { "enum": ["unavailable", "development", "staging", "released", "unsupported"] },
+          "image": { "type": ["string", "null"] },
+          "digest": { "type": ["string", "null"], "pattern": "^sha256:[a-f0-9]{64}$" },
+          "schema_version": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

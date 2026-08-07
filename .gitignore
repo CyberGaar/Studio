@@ -1,0 +1,57 @@
+# SPDX-FileCopyrightText: 2026 CyberGaar (Omer Rastgar)
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+certs/
+secrets/
+
+# Dependencies and virtual environments
+node_modules/
+.pnpm-store/
+.yarn/
+.venv/
+venv/
+
+# Generated, build, test, and runtime content
+dist/
+build/
+.next/
+out/
+coverage/
+htmlcov/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+test-results/
+playwright-report/
+*.tsbuildinfo
+*.log
+*.tmp
+*.db
+*.sqlite
+*.sqlite3
+outputs/
+reports/private/
+.migration/evidence/
+
+# Local tools and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Local container state
+**/_data/
+docker-data/

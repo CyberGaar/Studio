@@ -1,0 +1,22 @@
+{
+  "$schema": "../schemas/compatibility-manifest.schema.json",
+  "schema_version": "1.0.0",
+  "platform": {
+    "version": "0.1.0",
+    "status": "pre-release"
+  },
+  "services": [
+    { "name": "backend", "version": "0.1.0", "status": "unavailable", "image": null, "digest": null, "schema_version": null },
+    { "name": "frontend", "version": "0.1.0", "status": "unavailable", "image": null, "digest": null, "schema_version": null },
+    { "name": "gateway", "version": "0.1.0", "status": "unavailable", "image": null, "digest": null, "schema_version": null },
+    { "name": "ai-service", "version": "0.1.0", "status": "unavailable", "image": null, "digest": null, "schema_version": null },
+    { "name": "fleet", "version": "0.1.0", "status": "unavailable", "image": null, "digest": null, "schema_version": null },
+    { "name": "viewer", "version": "0.1.0", "status": "unavailable", "image": null, "digest": null, "schema_version": null },
+    { "name": "website-scanner", "version": "0.1.0", "status": "unavailable", "image": null, "digest": null, "schema_version": null },
+    { "name": "document-rag-service", "version": "0.1.0", "status": "unavailable", "image": null, "digest": null, "schema_version": null },
+    { "name": "chunking-worker", "version": "0.1.0", "status": "unavailable", "image": null, "digest": null, "schema_version": null },
+    { "name": "url-downloader-worker", "version": "0.1.0", "status": "unavailable", "image": null, "digest": null, "schema_version": null },
+    { "name": "vector-store", "version": "0.1.0", "status": "unavailable", "image": null, "digest": null, "schema_version": null },
+    { "name": "graph-retriever", "version": "0.1.0", "status": "unavailable", "image": null, "digest": null, "schema_version": null }
+  ]
+}

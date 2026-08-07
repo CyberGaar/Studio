@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: 2026 CyberGaar (Omer Rastgar)
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Exact public file scope for migration task 0.1.
+.editorconfig
+.env.example
+.gitattributes
+.gitignore
+.migration/active-task.txt
+.migration/allowlists/0.1.txt
+.node-version
+.npmrc
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+GOVERNANCE.md
+LICENSE
+MAINTAINERS.md
+MIGRATION_LEDGER.md
+NOTICE
+README.md
+SECURITY.md
+docs/architecture/service-independence.md
+docs/governance/repository-policy.md
+docs/governance/versioning.md
+docs/security/tooling-matrix.md
+docs/testing/staging-gates.md
+lefthook.yml
+package-lock.json
+package.json
+schemas/compatibility-manifest.schema.json
+schemas/migration-disposition.schema.json
+scripts/check-public-disclosure.ps1
+scripts/check-spdx.ps1
+scripts/check-staged-allowlist.ps1
+scripts/run-staged-gitleaks.ps1
+scripts/validate-phase0.ps1
+tools/versions.json
+versions/compatibility-manifest.json

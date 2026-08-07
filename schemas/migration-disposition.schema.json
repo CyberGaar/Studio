@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/CyberGaar/Studio/schemas/migration-disposition.schema.json",
+  "title": "CyberGaar Studio migration disposition row",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source_path",
+    "source_sha256",
+    "disposition",
+    "parent_task",
+    "snapshot_path",
+    "snapshot_sha256",
+    "reason"
+  ],
+  "properties": {
+    "source_path": { "type": "string", "minLength": 1 },
+    "source_sha256": { "type": "string", "pattern": "^$|^[a-f0-9]{64}$" },
+    "size": { "type": ["integer", "string"], "minimum": 0 },
+    "mode_octal": { "type": "string" },
+    "symlink_target": { "type": "string" },
+    "disposition": {
+      "enum": ["migrated", "generated", "excluded", "renamed", "deleted-by-decision"]
+    },
+    "parent_task": { "type": "string", "minLength": 1 },
+    "snapshot_path": { "type": "string" },
+    "snapshot_sha256": { "type": "string", "pattern": "^$|^[a-f0-9]{64}$" },
+    "reason": { "type": "string", "minLength": 1 }
+  }
+}
