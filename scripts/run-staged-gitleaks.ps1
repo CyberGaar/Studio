@@ -21,5 +21,5 @@ if ($stagedNames.Count -eq 0) {
 }
 
 git diff --cached --no-ext-diff --no-color --unified=0 |
-    & $gitleaks.Source stdin --redact=100 --no-banner --no-color --log-level warn
+    & $gitleaks.Definition stdin --redact=100 --no-banner --no-color --log-level warn
 exit $LASTEXITCODE

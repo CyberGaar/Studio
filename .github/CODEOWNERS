@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: 2026 CyberGaar (Omer Rastgar)
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+* @CyberGaar
+/.github/ @CyberGaar
+/SECURITY.md @CyberGaar
+/GOVERNANCE.md @CyberGaar
+/MAINTAINERS.md @CyberGaar
+/docs/security/ @CyberGaar
+/scripts/ @CyberGaar
+/tools/ @CyberGaar

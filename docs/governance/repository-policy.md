@@ -7,6 +7,8 @@
 
 After the repository bootstrap commit, `main` must require pull requests, squash merges, required status checks, conversation resolution, and current approvals. Direct pushes, force pushes, branch deletion, and approval by the change author are prohibited.
 
+Protection was enabled and publicly verified on 2026-08-08 after the single authorized bootstrap push. Phase 0.2 and every later migration task must use a feature branch and pull request.
+
 Standard changes require one designated maintainer. Security-sensitive changes require two approvals, including a security maintainer. Dismiss approvals when new commits are pushed.
 
 The repository must require two-factor authentication for maintainers and contributors with write access. Administrative bypass is limited to the two-maintainer break-glass process in `GOVERNANCE.md`.

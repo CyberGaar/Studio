@@ -11,8 +11,16 @@ $requiredFiles = @(
     '.env.example', '.node-version', '.npmrc', 'package.json', 'SECURITY.md',
     'CONTRIBUTING.md', 'CODE_OF_CONDUCT.md', 'GOVERNANCE.md', 'MAINTAINERS.md',
     'CHANGELOG.md', 'MIGRATION_LEDGER.md', 'lefthook.yml',
-    '.migration/active-task.txt', '.migration/allowlists/0.1.txt',
-    'scripts/check-staged-allowlist.ps1',
+    '.migration/active-task.txt', '.migration/allowlists/0.1.txt', '.migration/allowlists/0.2.txt',
+    '.github/CODEOWNERS', '.github/dependabot.yml', '.github/pull_request_template.md',
+    '.github/codeql/codeql-config.yml', '.github/workflows/pr-gate.yml',
+    '.github/workflows/codeql.yml', '.github/workflows/scorecard.yml',
+    '.github/workflows/security-scheduled.yml', '.gitleaks.toml', '.semgrep.yml',
+    'scripts/check-action-pins.ps1', 'scripts/check-staged-allowlist.ps1',
+    'scripts/check-task-diff-allowlist.ps1', 'scripts/check-workflow-security.ps1',
+    'scripts/run-repository-gitleaks.ps1', 'scripts/run-targeted-semgrep.ps1',
+    'scripts/ci/install-actionlint.sh', 'scripts/ci/install-gitleaks.sh',
+    'scripts/ci/install-osv-scanner.sh',
     'schemas/migration-disposition.schema.json',
     'schemas/compatibility-manifest.schema.json',
     'versions/compatibility-manifest.json', 'tools/versions.json',
@@ -58,5 +66,7 @@ Get-Content -Raw -LiteralPath (Join-Path $root 'tools/versions.json') | ConvertF
 
 & (Join-Path $PSScriptRoot 'check-spdx.ps1')
 & (Join-Path $PSScriptRoot 'check-public-disclosure.ps1')
+& (Join-Path $PSScriptRoot 'check-action-pins.ps1')
+& (Join-Path $PSScriptRoot 'check-workflow-security.ps1')
 
-Write-Output 'Phase 0.1 validation passed.'
+Write-Output 'Phase 0 validation passed.'
