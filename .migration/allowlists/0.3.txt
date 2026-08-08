@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: 2026 CyberGaar (Omer Rastgar)
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Exact public paths authorized for migration task 0.3.
+.migration/active-task.txt
+.migration/allowlists/0.3.txt
+AGENTS.md
+MIGRATION_LEDGER.md
+docs/migration/agent-task-prompt.md
+scripts/validate-phase0.ps1
