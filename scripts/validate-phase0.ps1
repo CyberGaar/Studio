@@ -7,11 +7,12 @@ param()
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $requiredFiles = @(
-    'README.md', 'LICENSE', 'NOTICE', '.gitignore', '.gitattributes', '.editorconfig',
+    'README.md', 'LICENSE', 'NOTICE', 'AGENTS.md', '.gitignore', '.gitattributes', '.editorconfig',
     '.env.example', '.node-version', '.npmrc', 'package.json', 'SECURITY.md',
     'CONTRIBUTING.md', 'CODE_OF_CONDUCT.md', 'GOVERNANCE.md', 'MAINTAINERS.md',
     'CHANGELOG.md', 'MIGRATION_LEDGER.md', 'lefthook.yml',
     '.migration/active-task.txt', '.migration/allowlists/0.1.txt', '.migration/allowlists/0.2.txt',
+    '.migration/allowlists/0.3.txt',
     '.github/CODEOWNERS', '.github/dependabot.yml', '.github/pull_request_template.md',
     '.github/codeql/codeql-config.yml', '.github/workflows/pr-gate.yml',
     '.github/workflows/codeql.yml', '.github/workflows/scorecard.yml',
@@ -26,6 +27,7 @@ $requiredFiles = @(
     'versions/compatibility-manifest.json', 'tools/versions.json',
     'docs/architecture/service-independence.md',
     'docs/governance/repository-policy.md', 'docs/governance/versioning.md',
+    'docs/migration/agent-task-prompt.md',
     'docs/security/tooling-matrix.md', 'docs/testing/staging-gates.md'
 )
 
