@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2026 CyberGaar (Omer Rastgar)
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+rules:
+  - id: cybergaar-hardcoded-node-secret-fallback
+    message: Secret-bearing environment variables must not have hard-coded fallback values.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include: ["*.js", "*.jsx", "*.mjs", "*.cjs", "*.ts", "*.tsx"]
+    pattern-regex: >-
+      process\.env\.(?:JWT_SECRET|SECRET_CIPHER|API_KEY|TOKEN|PASSWORD|CLIENT_SECRET)\s*(?:\|\||\?\?)\s*["'][^$<{][^"']{5,}["']
+
+  - id: cybergaar-hardcoded-python-secret-default
+    message: Secret-bearing environment variables must not have hard-coded fallback values.
+    severity: ERROR
+    languages: [generic]
+    paths:
+      include: ["*.py"]
+    pattern-regex: >-
+      os\.(?:getenv|environ\.get)\(\s*["'](?:JWT_SECRET|SECRET_CIPHER|API_KEY|TOKEN|PASSWORD|CLIENT_SECRET)["']\s*,\s*["'][^$<{][^"']{5,}["']

@@ -8,6 +8,8 @@ pre-commit:
       run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-staged-allowlist.ps1
     phase-zero-validation:
       run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-phase0.ps1
+    targeted-semgrep:
+      run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-targeted-semgrep.ps1
     staged-secret-scan:
       run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-staged-gitleaks.ps1
 
@@ -18,3 +20,5 @@ pre-push:
       run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-public-disclosure.ps1
     phase-zero-validation:
       run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-phase0.ps1
+    repository-secret-scan:
+      run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-repository-gitleaks.ps1

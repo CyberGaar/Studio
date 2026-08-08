@@ -5,6 +5,8 @@
 
 Tool versions and GitHub Action commit SHAs are pinned in Phase 0.2. A missing required tool is a failed gate, not a skipped check.
 
+The authoritative pins are in `tools/versions.json`. Release binaries installed in GitHub Actions are downloaded over HTTPS and verified against committed SHA-256 values before execution. Every third-party action reference uses a full 40-character commit SHA.
+
 | Layer | Purpose | Tool | Trigger | Blocking policy |
 |---|---|---|---|---|
 | Local pre-commit | Staged secret detection | Gitleaks | Every commit | Any unresolved finding blocks commit |
@@ -20,3 +22,5 @@ Tool versions and GitHub Action commit SHAs are pinned in Phase 0.2. A missing r
 | Isolated staging | Dynamic application scan | Nuclei | Runnable feature milestone | Any confirmed Critical/High blocks merge |
 
 Nuclei is never run against arbitrary public targets. CI remains change-scoped; compute-heavy integration, E2E, RBAC, and dynamic tests execute in the isolated feature-branch staging environment and their signed results are attached to the pull request.
+
+Checkov, Hadolint, Trivy, and Syft are pinned now but activate only when an applicable IaC file, Dockerfile, container image, or release artifact is introduced. Nuclei 3.11.0 remains staging-only and is intentionally absent from repository CI workflows.

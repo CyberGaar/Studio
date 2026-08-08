@@ -10,8 +10,10 @@
   },
   "scripts": {
     "check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-phase0.ps1",
+    "check:actions": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-action-pins.ps1",
     "check:allowlist": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-staged-allowlist.ps1",
     "check:disclosure": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-public-disclosure.ps1",
-    "check:license": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-spdx.ps1"
+    "check:license": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-spdx.ps1",
+    "check:workflows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-workflow-security.ps1"
   }
 }

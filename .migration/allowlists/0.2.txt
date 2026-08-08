@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2026 CyberGaar (Omer Rastgar)
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Exact public paths authorized for migration task 0.2.
+.github/CODEOWNERS
+.github/codeql/codeql-config.yml
+.github/dependabot.yml
+.github/pull_request_template.md
+.github/workflows/codeql.yml
+.github/workflows/pr-gate.yml
+.github/workflows/scorecard.yml
+.github/workflows/security-scheduled.yml
+.gitleaks.toml
+.migration/active-task.txt
+.migration/allowlists/0.2.txt
+.semgrep.yml
+MIGRATION_LEDGER.md
+docs/governance/repository-policy.md
+docs/security/tooling-matrix.md
+lefthook.yml
+package.json
+scripts/check-action-pins.ps1
+scripts/check-task-diff-allowlist.ps1
+scripts/check-workflow-security.ps1
+scripts/ci/install-actionlint.sh
+scripts/ci/install-gitleaks.sh
+scripts/ci/install-osv-scanner.sh
+scripts/run-repository-gitleaks.ps1
+scripts/run-staged-gitleaks.ps1
+scripts/run-targeted-semgrep.ps1
+scripts/validate-phase0.ps1
+tools/versions.json
