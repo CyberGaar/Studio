@@ -35,9 +35,9 @@ jobs:
         run: ./scripts/validate-phase0.ps1
       - name: Install verified security binaries
         run: |
-          ./scripts/ci/install-actionlint.sh
-          ./scripts/ci/install-gitleaks.sh
-          ./scripts/ci/install-osv-scanner.sh
+          bash ./scripts/ci/install-actionlint.sh
+          bash ./scripts/ci/install-gitleaks.sh
+          bash ./scripts/ci/install-osv-scanner.sh
       - name: Lint workflows
         run: actionlint
       - name: Scan complete Git history for secrets

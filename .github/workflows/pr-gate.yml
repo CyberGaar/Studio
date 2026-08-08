@@ -41,11 +41,11 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: ./scripts/check-task-diff-allowlist.ps1 -BaseSha $env:BASE_SHA
       - name: Install actionlint from verified release
-        run: ./scripts/ci/install-actionlint.sh
+        run: bash ./scripts/ci/install-actionlint.sh
       - name: Lint GitHub Actions workflows
         run: actionlint
       - name: Install Gitleaks from verified release
-        run: ./scripts/ci/install-gitleaks.sh
+        run: bash ./scripts/ci/install-gitleaks.sh
       - name: Scan complete Git history
         run: gitleaks git . --config .gitleaks.toml --redact --verbose
 
