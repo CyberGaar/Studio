@@ -16,9 +16,9 @@ $contentPatterns = @(
     '(?i)password\s*[:=]\s*["''][^<${][^"'']{5,}["'']'
 )
 
-$files = Get-ChildItem -LiteralPath $root -Recurse -Force -File | Where-Object {
-    $_.FullName -notmatch '[\\/]\.git[\\/]'
-}
+$candidatePaths = @(git -C $root ls-files --cached --others --exclude-standard)
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+$files = @($candidatePaths | ForEach-Object { Get-Item -LiteralPath (Join-Path $root $_) } | Where-Object { -not $_.PSIsContainer })
 
 foreach ($file in $files) {
     $relative = $file.FullName.Substring($root.Length + 1).Replace('\', '/')

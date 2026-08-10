@@ -23,5 +23,6 @@ The detailed evidence for pre-flight work is retained outside the public reposit
 | 0.1 Governance and scaffolding | `migration/0.1-scaffolding` | `3d86e8a07d0982a4a8278f48809e48ccbe2693f3` | Passed | Phase 0.1 validation passed | Gitleaks: zero findings | Bootstrap exception | `3d86e8a07d0982a4a8278f48809e48ccbe2693f3` | Verified |
 | 0.2 Security and CI bootstrap | `migration/0.2-security-bootstrap` | `3ae2e1fcee33324cf4d6cf83891a8341ad0e66b4` | N/A | Phase 0 validation and actionlint passed | Gitleaks: zero findings; 23 action references pinned | #1 | `1abd18a911dc075826d4312b95d373a2d7a7f9e7` | Verified |
 | 0.3 Team migration agent contract | `migration/0.3-agent-contract` | | N/A | Phase 0 validation passed | Gitleaks: zero findings; disclosure gate passed | | | Ready for review |
+| 1.1 Canonical Prisma schema | `migration/1.1-prisma-schema` | | Passed | Static checks and disposable empty/populated PostgreSQL rehearsal passed | Plaintext credentials removed; database-enforced tenant isolation passed | | | Ready for review |
 
 Allowed statuses are `Not started`, `In progress`, `Blocked`, `Ready for review`, `Ready for staging`, `Staging passed`, `Merged`, and `Verified`.

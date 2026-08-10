@@ -1,0 +1,31 @@
+{
+  "name": "@cybergaar/database-schema",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "engines": {
+    "node": "22.20.0",
+    "npm": "10.9.3"
+  },
+  "scripts": {
+    "check": "npm run validate && npm run generate:check && npm run migration:check",
+    "validate": "prisma validate",
+    "generate": "prisma generate",
+    "generate:check": "prisma generate && node scripts/assert-generated-untracked.mjs",
+    "migration:baseline": "prisma migrate diff --from-empty --to-schema=prisma/schema.prisma --script --output=prisma/migrations/20260809_000000_canonical_baseline/migration.sql",
+    "migration:check": "node scripts/assert-baseline-reproducible.mjs",
+    "fixtures:apply": "node scripts/apply-synthetic-fixtures.mjs"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.9.1",
+    "@prisma/client": "7.9.1",
+    "bcryptjs": "3.0.2",
+    "dotenv": "17.2.3",
+    "pg": "8.16.3"
+  },
+  "devDependencies": {
+    "prisma": "7.9.1",
+    "typescript": "5.9.3"
+  }
+}

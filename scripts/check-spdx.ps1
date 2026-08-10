@@ -12,9 +12,9 @@ $namedFiles = @('.gitignore', '.gitattributes', '.editorconfig', '.env.example',
 $extensions = @('.md', '.ps1', '.yml', '.yaml', '.toml', '.sh', '.py', '.ts', '.tsx', '.js', '.mjs')
 $problems = New-Object System.Collections.Generic.List[string]
 
-$files = Get-ChildItem -LiteralPath $root -Recurse -Force -File | Where-Object {
-    $_.FullName -notmatch '[\\/]\.git[\\/]'
-}
+$candidatePaths = @(git -C $root ls-files --cached --others --exclude-standard)
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+$files = @($candidatePaths | ForEach-Object { Get-Item -LiteralPath (Join-Path $root $_) } | Where-Object { -not $_.PSIsContainer })
 
 foreach ($file in $files) {
     $requiresHeader = $namedFiles -contains $file.Name -or $extensions -contains $file.Extension.ToLowerInvariant()
