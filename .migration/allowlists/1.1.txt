@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: 2026 CyberGaar (Omer Rastgar)
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Exact public paths authorized for migration task 1.1.
+.gitignore
+.migration/active-task.txt
+.migration/allowlists/1.1.txt
+MIGRATION_LEDGER.md
+database/schema/.env.example
+database/schema/README.md
+database/schema/package-lock.json
+database/schema/package.json
+database/schema/prisma.config.ts
+database/schema/prisma/migration_lock.toml
+database/schema/prisma/migrations/20260809_000000_canonical_baseline/migration.sql
+database/schema/prisma/schema.prisma
+database/schema/scripts/apply-synthetic-fixtures.mjs
+database/schema/scripts/assert-baseline-reproducible.mjs
+database/schema/scripts/assert-generated-untracked.mjs
+docs/migration/tasks/1.1-prisma-schema.md
+scripts/check-public-disclosure.ps1
+scripts/check-spdx.ps1
+scripts/validate-task-1.1.ps1
+tools/versions.json

@@ -7,6 +7,11 @@
     "git": "2.50.1.windows.1",
     "windows_powershell": "5.1"
   },
+  "database": {
+    "prisma": "7.9.1",
+    "postgres": "18",
+    "rehearsal_image": "pgvector/pgvector@sha256:691673308c99d2161ba298736f3147f1f22d79de2fb7ec93ae9b4afcab870b62"
+  },
   "security": {
     "actionlint": "1.7.12",
     "checkov": "3.3.9",

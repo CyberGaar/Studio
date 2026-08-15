@@ -12,8 +12,17 @@ $namedFiles = @('.gitignore', '.gitattributes', '.editorconfig', '.env.example',
 $extensions = @('.md', '.ps1', '.yml', '.yaml', '.toml', '.sh', '.py', '.ts', '.tsx', '.js', '.mjs')
 $problems = New-Object System.Collections.Generic.List[string]
 
-$files = Get-ChildItem -LiteralPath $root -Recurse -Force -File | Where-Object {
-    $_.FullName -notmatch '[\\/]\.git[\\/]'
+$candidatePaths = @(git -C $root ls-files --cached --others --exclude-standard)
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+$files = New-Object System.Collections.Generic.List[System.IO.FileInfo]
+foreach ($relativePath in $candidatePaths) {
+    $fullPath = [System.IO.Path]::GetFullPath((Join-Path $root $relativePath))
+    if ([System.IO.File]::Exists($fullPath)) {
+        $files.Add([System.IO.FileInfo]::new($fullPath))
+    } elseif (-not [System.IO.Directory]::Exists($fullPath)) {
+        $normalized = $relativePath.Replace('\', '/')
+        $problems.Add("missing-repository-path:$normalized")
+    }
 }
 
 foreach ($file in $files) {

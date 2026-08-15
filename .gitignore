@@ -43,6 +43,8 @@ playwright-report/
 outputs/
 reports/private/
 .migration/evidence/
+.runtime/
+database/schema/generated/
 
 # Local tools and editors
 .idea/

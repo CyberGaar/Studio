@@ -1,0 +1,1225 @@
+// SPDX-FileCopyrightText: 2026 CyberGaar (Omer Rastgar)
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Framework {
+  id                     String                  @id @default(uuid())
+  name                   String                  @unique
+  description            String?
+  hasSqlData             Boolean                 @default(false) @map("has_sql_data")
+  createdAt              DateTime                @default(now()) @map("created_at")
+  updatedAt              DateTime                @updatedAt @map("updated_at")
+  controls               Control[]
+  projects               Project[]
+  questionnaireQuestions QuestionnaireQuestion[]
+
+  @@map("frameworks")
+}
+
+model Control {
+  id                     String                  @id @default(uuid())
+  frameworkId            String                  @map("framework_id")
+  code                   String
+  title                  String
+  description            String?
+  category               String?
+  sqlEnabled             Boolean                 @default(false) @map("sql_enabled")
+  sqlQuery               String?                 @map("sql_query")
+  createdAt              DateTime                @default(now()) @map("created_at")
+  updatedAt              DateTime                @updatedAt @map("updated_at")
+  framework              Framework               @relation(fields: [frameworkId], references: [id], onDelete: Cascade)
+  projectControls        ProjectControl[]
+  questionnaireQuestions QuestionnaireQuestion[]
+  tags                   Tag[]                   @relation("ControlTags")
+  threatTemplates        ThreatTemplate[]        @relation("ControlToThreatTemplate")
+  vulnerabilityTemplates VulnerabilityTemplate[] @relation("ControlToVulnerabilityTemplate")
+
+  @@unique([frameworkId, code])
+  @@index([frameworkId])
+  @@map("controls")
+}
+
+model Tag {
+  id             String             @id @default(uuid())
+  name           String             @unique
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+  tagAudits      EvidenceTagAudit[] @relation("TagAudits")
+  documentChunks DocumentChunk[]    @relation("ChunkTags")
+  controls       Control[]          @relation("ControlTags")
+  documentTypes  DocumentType[]     @relation("DocumentTypeTags")
+  evidence       Evidence[]         @relation("EvidenceTags")
+
+  @@map("tags")
+}
+
+model ProjectControl {
+  id            String         @id @default(uuid())
+  projectId     String         @map("project_id")
+  controlId     String         @map("control_id")
+  progress      Int            @default(0)
+  evidenceCount Int            @default(0) @map("evidence_count")
+  notes         String?
+  reviewerNotes String?        @map("reviewer_notes")
+  isFlagged     Boolean        @default(false) @map("is_flagged")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  status        ControlStatus  @default(NOT_STARTED)
+  auditRequests AuditRequest[]
+  evidenceItems EvidenceItem[]
+  control       Control        @relation(fields: [controlId], references: [id], onDelete: Cascade)
+  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  evidence      Evidence[]     @relation("EvidenceToProjectControl")
+
+  @@unique([projectId, controlId])
+  @@index([projectId])
+  @@index([controlId])
+  @@map("project_controls")
+}
+
+model EvidenceItem {
+  id               String         @id @default(uuid())
+  projectControlId String         @map("project_control_id")
+  fileUrl          String?        @map("file_url")
+  fileName         String         @map("file_name")
+  tags             String[]
+  tagSource        TagSource      @default(manual) @map("tag_source")
+  uploadedById     String         @map("uploaded_by_id")
+  uploadedAt       DateTime       @default(now()) @map("uploaded_at")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  projectControl   ProjectControl @relation(fields: [projectControlId], references: [id], onDelete: Cascade)
+  uploadedBy       User           @relation("UploadedEvidence", fields: [uploadedById], references: [id], onDelete: Cascade)
+
+  @@index([projectControlId])
+  @@index([uploadedById])
+  @@map("evidence_items")
+}
+
+model PolicyReview {
+  id         String    @id @default(uuid())
+  userId     String    @map("user_id")
+  evidenceId String    @map("evidence_id")
+  reviewedAt DateTime? @map("reviewed_at")
+  assignedAt DateTime  @default(now()) @map("assigned_at")
+  evidence   Evidence  @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, evidenceId])
+  @@map("policy_reviews")
+}
+
+model Project {
+  id                     String                  @id @default(uuid())
+  name                   String
+  customerName           String                  @map("customer_name")
+  customerId             String                  @map("customer_id")
+  auditorId              String?                 @map("auditor_id")
+  frameworkId            String?                 @map("framework_id")
+  status                 ProjectStatus           @default(pending)
+  rejectionReason        String?                 @map("rejection_reason")
+  reviewerAuditorId      String?                 @map("reviewer_auditor_id")
+  description            String?
+  scope                  String?
+  startDate              DateTime?               @map("start_date")
+  dueDate                DateTime?               @map("due_date")
+  endDate                DateTime?               @map("end_date")
+  createdAt              DateTime                @default(now()) @map("created_at")
+  updatedAt              DateTime                @updatedAt @map("updated_at")
+  isDemo                 Boolean                 @default(false) @map("is_demo")
+  agentMemories          AgentMemory[]
+  agents                 Agent[]
+  auditEvents            AuditEvent[]
+  auditRequests          AuditRequest[]
+  complianceTasks        ComplianceTask[]
+  evidenceLinks          ProjectEvidenceLink[]   // NEW: vault-based linking
+  projectControls        ProjectControl[]
+  projectIssues          ProjectIssue[]
+  projectShares          ProjectShare[]
+  timeLogs               ProjectTimeLog[]
+  auditor                User?                   @relation("AuditorProjects", fields: [auditorId], references: [id])
+  customer               User                    @relation("CustomerProjects", fields: [customerId], references: [id], onDelete: Cascade)
+  framework              Framework?              @relation(fields: [frameworkId], references: [id])
+  reviewerAuditor        User?                   @relation("ReviewerProjects", fields: [reviewerAuditorId], references: [id])
+  questionnaireResponses QuestionnaireResponse[]
+  techStackDiscrepancies TechStackDiscrepancy[]
+
+  @@unique([id, customerId])
+  @@index([customerId])
+  @@index([auditorId])
+  @@index([frameworkId])
+  @@index([reviewerAuditorId])
+  @@map("projects")
+}
+
+model ProjectShare {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  projectId String   @map("project_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation("SharedProjects", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+  @@map("project_shares")
+}
+
+model User {
+  id                       String                    @id @default(uuid())
+  name                     String
+  email                    String                    @unique
+  /// A one-way password hash for legacy compatibility. Raw passwords are prohibited.
+  passwordHash             String?                   @map("password")
+  avatarUrl                String?                   @map("avatar_url")
+  role                     UserRole
+  status                   UserStatus                @default(Active)
+  lastActive               DateTime?                 @map("last_active")
+  createdById              String?                   @map("created_by_id")
+  managerId                String?                   @map("manager_id")
+  linkedCustomerId         String?                   @map("linked_customer_id")
+  forcePasswordChange      Boolean                   @default(false) @map("force_password_change")
+  isNewUser                Boolean                   @default(true) @map("is_new_user")
+  pushSubscription         Json?                     @map("push_subscription")
+  createdAt                DateTime                  @default(now()) @map("created_at")
+  updatedAt                DateTime                  @updatedAt @map("updated_at")
+  bio                      String?
+  dashboardView            String                    @default("complex") @map("dashboard_view")
+  department               String?                   @map("department")
+  customerDeployments      AgentDeployment[]         @relation("CustomerDeployments")
+  downloadedDeployments    AgentDeployment[]         @relation("DownloadedDeployments")
+  agentMemories            AgentMemory[]             @relation("CustomerMemory")
+  agents                   Agent[]                   @relation("CustomerAgents")
+  auditorEvents            AuditEvent[]              @relation("AuditorEvents")
+  customerEvents           AuditEvent[]              @relation("CustomerEvents")
+  auditorRequests          AuditRequest[]            @relation("AuditorRequests")
+  customerRequests         AuditRequest[]            @relation("CustomerRequests")
+  auditor                  Auditor?
+  casbIntegrations         CASBIntegration[]         @relation("CASBIntegrations")
+  customerComplianceTasks  ComplianceTask[]          @relation("CustomerComplianceTasks")
+  conversationParticipants ConversationParticipant[]
+  uploadedProjectEvidence  Evidence[]                @relation("UploadedProjectEvidence")
+  vaultEvidence            Evidence[]                @relation("VaultEvidence")        // NEW: evidence owned by this customer
+  projectEvidenceLinks     ProjectEvidenceLink[]                                        // NEW: evidence-project link records added by this user
+  evidenceAnnotations      EvidenceAnnotation[]      @relation("EvidenceComments")
+  uploadedEvidence         EvidenceItem[]            @relation("UploadedEvidence")
+  findingComments          FindingComment[]          @relation("FindingComments")
+  assignedFindings         Finding[]                 @relation("AssignedFindings")
+  resolvedFindings         Finding[]                 @relation("ResolvedFindings")
+  sentMessages             Message[]                 @relation("SentMessages")
+  notifications            Notification[]
+  policyReviews            PolicyReview[]
+  reportedIssues           ProjectIssue[]            @relation("CustomerIssues")
+  sharedProjects           ProjectShare[]            @relation("SharedProjects")
+  timeLogs                 ProjectTimeLog[]
+  auditorProjects          Project[]                 @relation("AuditorProjects")
+  customerProjects         Project[]                 @relation("CustomerProjects")
+  reviewerProjects         Project[]                 @relation("ReviewerProjects")
+  questionnaireResponses   QuestionnaireResponse[]
+  userCourses              UserCourse[]
+  integrations             UserIntegration[]
+  createdBy                User?                     @relation("CreatedUsers", fields: [createdById], references: [id])
+  createdUsers             User[]                    @relation("CreatedUsers")
+  linkedCustomer           User?                     @relation("CustomerCompliance", fields: [linkedCustomerId], references: [id])
+  complianceUsers          User[]                    @relation("CustomerCompliance")
+  manager                  User?                     @relation("ManagerUsers", fields: [managerId], references: [id])
+  managedUsers             User[]                    @relation("ManagerUsers")
+
+  @@index([createdById])
+  @@index([managerId])
+  @@index([linkedCustomerId])
+  @@map("users")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String
+  title     String
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("notifications")
+}
+
+model Auditor {
+  id             String   @id
+  userId         String   @unique @map("user_id")
+  experience     String?
+  certifications String[]
+  progress       Int      @default(0)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("auditors")
+}
+
+model Agent {
+  id             String           @id
+  name           String
+  platform       AgentPlatform
+  status         AgentStatus      @default(Pending)
+  projectId      String?          @map("project_id")
+  hostname       String?
+  ipAddress      String?          @map("ip_address")
+  osVersion      String?          @map("os_version")
+  fleetNodeKey   String?          @unique @map("fleet_node_key")
+  hardwareSerial String?          @map("hardware_serial")
+  lastSync       DateTime?        @map("last_sync")
+  lastSeenAt     DateTime?        @map("last_seen_at")
+  version        String?
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  customerId     String?          @map("customer_id")
+  assetCategory  String?          @map("asset_category")
+  assetType      String?          @map("asset_type")
+  connectivity   String?
+  criticality    String?          @default("Medium")
+  environment    String?          @default("Production")
+  location       String?          @default("Office")
+  isManual       Boolean          @default(false) @map("is_manual")
+  deployment     AgentDeployment?
+  customer       User?            @relation("CustomerAgents", fields: [customerId], references: [id])
+  project        Project?         @relation(fields: [projectId], references: [id])
+  evidence       Evidence[]
+  findings       Finding[]
+
+  @@index([projectId])
+  @@index([customerId])
+  @@map("agents")
+}
+
+model AgentDeployment {
+  id            String        @id @default(uuid())
+  customerId    String        @map("customer_id")
+  platform      AgentPlatform
+  downloadedBy  String        @map("downloaded_by")
+  downloadedAt  DateTime      @default(now()) @map("downloaded_at")
+  expiresAt     DateTime      @map("expires_at")
+  linkedAgentId String?       @unique @map("linked_agent_id")
+  customer      User          @relation("CustomerDeployments", fields: [customerId], references: [id], onDelete: Cascade)
+  downloader    User          @relation("DownloadedDeployments", fields: [downloadedBy], references: [id], onDelete: Cascade)
+  agent         Agent?        @relation(fields: [linkedAgentId], references: [id])
+
+  @@index([customerId, expiresAt])
+  @@index([platform, linkedAgentId])
+  @@map("agent_deployments")
+}
+
+model DocumentType {
+  id          String             @id @default(uuid())
+  name        String             @unique
+  description String?
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+  tasks       DocumentTypeTask[]
+  evidence    Evidence[]
+  tags        Tag[]              @relation("DocumentTypeTags")
+
+  @@map("document_types")
+}
+
+model DocumentTypeTask {
+  id             String       @id @default(uuid())
+  documentTypeId String       @map("document_type_id")
+  description    String
+  isCritical     Boolean      @default(false) @map("is_critical")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  documentType   DocumentType @relation(fields: [documentTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([documentTypeId, description])
+  @@index([documentTypeId])
+  @@map("document_type_tasks")
+}
+
+model EvidenceTagAudit {
+  id         String   @id @default(uuid())
+  evidenceId String   @map("evidence_id")
+  tagId      String   @map("tag_id")
+  action     String
+  source     String   @default("ai")
+  createdAt  DateTime @default(now()) @map("created_at")
+  evidence   Evidence @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation("TagAudits", fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@index([evidenceId])
+  @@index([tagId])
+  @@map("evidence_tag_audits")
+}
+
+model Evidence {
+  id                     String                  @id @default(uuid())
+  // Vault ownership — evidence belongs to a customer, not a project
+  customerId             String                  @map("customer_id")
+  agentId                String?                 @map("agent_id")
+  fileName               String                  @map("file_name")
+  fileUrl                String?                 @map("file_url")
+  type                   EvidenceType            @default(document)
+  uploadedAt             DateTime                @default(now()) @map("uploaded_at")
+  uploadedById           String                  @map("uploaded_by_id")
+  createdAt              DateTime                @default(now()) @map("created_at")
+  updatedAt              DateTime                @updatedAt @map("updated_at")
+  chunkingStatus         ChunkingStatus          @default(PENDING) @map("chunking_status")
+  downloadError          String?                 @map("download_error")
+  downloadStatus         DownloadStatus?         @map("download_status")
+  isUrlBased             Boolean                 @default(false) @map("is_url_based")
+  // Demo evidence flag: true = belongs to a demo project, never shown in real customer vaults
+  isDemo                 Boolean                 @default(false) @map("is_demo")
+  evaluationResult       Json?                   @map("evaluation_result")
+  detectedDocumentTypeId String?                 @map("detected_document_type_id")
+  contentHash            String?                 @map("content_hash")
+  agentMemories          AgentMemory[]
+  complianceTasks        ComplianceTask[]
+  chunks                 DocumentChunk[]
+  projectLinks           ProjectEvidenceLink[]   // NEW: vault → project links
+  agent                  Agent?                  @relation(fields: [agentId], references: [id])
+  customer               User                    @relation("VaultEvidence", fields: [customerId], references: [id], onDelete: Cascade)
+  detectedDocumentType   DocumentType?           @relation(fields: [detectedDocumentTypeId], references: [id])
+  uploadedBy             User                    @relation("UploadedProjectEvidence", fields: [uploadedById], references: [id], onDelete: Cascade)
+  annotations            EvidenceAnnotation[]
+  tagAudits              EvidenceTagAudit[]
+  policyReviews          PolicyReview[]
+  questionnaireResponses QuestionnaireResponse[]
+  tags                   Tag[]                   @relation("EvidenceTags")
+  controls               ProjectControl[]        @relation("EvidenceToProjectControl")
+
+  // Unique per customer vault (not per project)
+  @@unique([customerId, fileName])
+  @@unique([id, customerId])
+  @@index([customerId])
+  @@index([isDemo])          // fast demo-exclusion filter
+  @@index([agentId])
+  @@index([uploadedById])
+  @@index([detectedDocumentTypeId])
+  @@map("evidence")
+}
+
+// Join table: links vault evidence to projects (many-to-many)
+model ProjectEvidenceLink {
+  id         String   @id @default(uuid())
+  projectId  String   @map("project_id")
+  evidenceId String   @map("evidence_id")
+  customerId String   @map("customer_id")
+  addedById  String   @map("added_by_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  project    Project  @relation(fields: [projectId, customerId], references: [id, customerId], onDelete: Cascade)
+  evidence   Evidence @relation(fields: [evidenceId, customerId], references: [id, customerId], onDelete: Cascade)
+  addedBy    User     @relation(fields: [addedById], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, evidenceId])
+  @@index([projectId])
+  @@index([evidenceId])
+  @@index([customerId])
+  @@map("project_evidence_links")
+}
+
+model AuditLog {
+  id            String        @id
+  userName      String        @map("user_name")
+  userAvatarUrl String?       @map("user_avatar_url")
+  action        String
+  details       String?
+  timestamp     DateTime      @default(now())
+  severity      AuditSeverity @default(Low)
+
+  @@map("audit_logs")
+}
+
+model Course {
+  id           String       @id
+  title        String
+  description  String?
+  duration     String?
+  thumbnailUrl String?      @map("thumbnail_url")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+  userCourses  UserCourse[]
+
+  @@map("courses")
+}
+
+model UserCourse {
+  id             String       @id @default(uuid())
+  userId         String       @map("user_id")
+  courseId       String       @map("course_id")
+  status         CourseStatus @default(NotStarted)
+  progress       Int          @default(0)
+  completionDate DateTime?    @map("completion_date")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  course         Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@map("user_courses")
+}
+
+model ComplianceActivity {
+  id           String         @id
+  evidenceName String         @map("evidence_name")
+  status       ActivityStatus
+  timestamp    DateTime       @default(now())
+
+  @@map("compliance_activities")
+}
+
+model AuditRequest {
+  id          String          @id @default(uuid())
+  auditorId   String          @map("auditor_id")
+  customerId  String          @map("customer_id")
+  projectId   String?         @map("project_id")
+  title       String
+  description String?
+  dueDate     DateTime?       @map("due_date")
+  status      String          @default("Pending")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  controlId   String?         @map("control_id")
+  auditor     User            @relation("AuditorRequests", fields: [auditorId], references: [id], onDelete: Cascade)
+  control     ProjectControl? @relation(fields: [controlId], references: [id])
+  customer    User            @relation("CustomerRequests", fields: [customerId], references: [id], onDelete: Cascade)
+  project     Project?        @relation(fields: [projectId], references: [id])
+
+  @@index([auditorId])
+  @@index([customerId])
+  @@index([projectId])
+  @@index([controlId])
+  @@map("audit_requests")
+}
+
+model AuditEvent {
+  id           String   @id @default(uuid())
+  auditorId    String   @map("auditor_id")
+  customerId   String?  @map("customer_id")
+  projectId    String?  @map("project_id")
+  title        String
+  description  String?
+  startTime    DateTime @map("start_time")
+  endTime      DateTime @map("end_time")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  syncedToJira Boolean  @default(false) @map("synced_to_jira")
+  auditor      User     @relation("AuditorEvents", fields: [auditorId], references: [id], onDelete: Cascade)
+  customer     User?    @relation("CustomerEvents", fields: [customerId], references: [id])
+  project      Project? @relation(fields: [projectId], references: [id])
+
+  @@index([auditorId])
+  @@index([customerId])
+  @@index([projectId])
+  @@map("audit_events")
+}
+
+model Conversation {
+  id           String                    @id @default(uuid())
+  createdAt    DateTime                  @default(now()) @map("created_at")
+  updatedAt    DateTime                  @updatedAt @map("updated_at")
+  title        String?
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             String       @id @default(uuid())
+  conversationId String       @map("conversation_id")
+  userId         String       @map("user_id")
+  lastReadAt     DateTime?    @map("last_read_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String       @map("conversation_id")
+  senderId       String       @map("sender_id")
+  content        String
+  createdAt      DateTime     @default(now()) @map("created_at")
+  metadata       Json?
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@map("messages")
+}
+
+model ProjectTimeLog {
+  id                   String   @id @default(uuid())
+  projectId            String   @map("project_id")
+  userId               String   @map("user_id")
+  date                 DateTime @db.Date
+  durationSeconds      Int      @default(0) @map("duration_seconds")
+  writingSeconds       Int      @default(0) @map("writing_seconds")
+  attachingSeconds     Int      @default(0) @map("attaching_seconds")
+  chatSeconds          Int      @default(0) @map("chat_seconds")
+  reviewSeconds        Int      @default(0) @map("review_seconds")
+  syncedSeconds        Int      @default(0) @map("synced_seconds")
+  meetingSyncedSeconds Int      @default(0) @map("meeting_synced_seconds")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+  project              Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId, date])
+  @@map("project_time_logs")
+}
+
+model ProjectIssue {
+  id          String   @id @default(uuid())
+  projectId   String   @map("project_id")
+  customerId  String   @map("customer_id")
+  title       String
+  description String
+  status      String   @default("open")
+  resolution  String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  customer    User     @relation("CustomerIssues", fields: [customerId], references: [id], onDelete: Cascade)
+  project     Project  @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+  @@index([customerId])
+  @@map("project_issues")
+}
+
+model EvidenceAnnotation {
+  id         String   @id @default(uuid())
+  evidenceId String   @map("evidence_id")
+  authorId   String   @map("author_id")
+  text       String
+  page       Int      @default(1)
+  x          Float
+  y          Float
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  author     User     @relation("EvidenceComments", fields: [authorId], references: [id], onDelete: Cascade)
+  evidence   Evidence @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+
+  @@index([evidenceId])
+  @@index([authorId])
+  @@map("evidence_annotations")
+}
+
+model CASBIntegration {
+  id                    String               @id @default(uuid())
+  name                  String
+  type                  CASBIntegrationType
+  vendor                String?
+  status                IntegrationStatus    @default(pending)
+  authType              AuthType             @default(api_key)
+  /// Non-secret provider settings only. Secret-bearing values are prohibited.
+  publicConfig          Json?                 @map("config")
+  /// Envelope-encrypted credential payload; never plaintext JSON.
+  credentialsCiphertext Bytes?                @map("credentials_ciphertext")
+  credentialsKeyId      String?               @map("credentials_key_id")
+  credentialsVersion    Int                   @default(1) @map("credentials_version")
+  tokenExpiry           DateTime?
+  syncFrequency         Int                   @default(3600)
+  lastSyncAt            DateTime?
+  nextSyncAt            DateTime?
+  createdById           String               @map("created_by_id")
+  createdAt             DateTime             @default(now()) @map("created_at")
+  updatedAt             DateTime             @updatedAt @map("updated_at")
+  isDemo                Boolean              @default(false) @map("is_demo")
+  createdBy             User                 @relation("CASBIntegrations", fields: [createdById], references: [id], onDelete: Cascade)
+  findings              Finding[]
+  syncLogs              IntegrationSyncLog[]
+
+  @@index([createdById])
+  @@map("casb_integrations")
+}
+
+model Finding {
+  id               String           @id @default(uuid())
+  integrationId    String?          @map("integration_id")
+  agentId          String?          @map("agent_id")
+  title            String
+  description      String
+  alertName        String?          @map("alert_name")
+  severity         FindingSeverity
+  category         FindingCategory
+  type             String
+  status           FindingStatus    @default(open)
+  notified         Boolean          @default(false)
+  assignedToId     String?          @map("assigned_to_id")
+  affectedResource String?          @map("affected_resource")
+  affectedUser     String?          @map("affected_user")
+  resourceType     String?          @map("resource_type")
+  location         String?
+  cloudService     String?          @map("cloud_service")
+  rawData          Json?            @map("raw_data")
+  evidence         String[]
+  frameworks       String[]
+  controls         String[]
+  recommendation   String?
+  remediationSteps String?          @map("remediation_steps")
+  dueDate          DateTime?        @map("due_date")
+  resolvedAt       DateTime?        @map("resolved_at")
+  resolvedById     String?          @map("resolved_by_id")
+  firstSeenAt      DateTime         @default(now()) @map("first_seen_at")
+  lastSeenAt       DateTime         @default(now()) @map("last_seen_at")
+  occurrenceCount  Int              @default(1) @map("occurrence_count")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+  templateId       String?          @map("template_id")
+  stride           String?
+  comments         FindingComment[]
+  agent            Agent?           @relation(fields: [agentId], references: [id])
+  assignedTo       User?            @relation("AssignedFindings", fields: [assignedToId], references: [id])
+  integration      CASBIntegration? @relation(fields: [integrationId], references: [id])
+  resolvedBy       User?            @relation("ResolvedFindings", fields: [resolvedById], references: [id])
+
+  @@index([integrationId])
+  @@index([agentId])
+  @@index([assignedToId])
+  @@index([resolvedById])
+  @@map("findings")
+}
+
+model FindingComment {
+  id        String   @id @default(uuid())
+  findingId String   @map("finding_id")
+  authorId  String   @map("author_id")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  author    User     @relation("FindingComments", fields: [authorId], references: [id], onDelete: Cascade)
+  finding   Finding  @relation(fields: [findingId], references: [id], onDelete: Cascade)
+
+  @@index([findingId])
+  @@index([authorId])
+  @@map("finding_comments")
+}
+
+model IntegrationSyncLog {
+  id               String          @id @default(uuid())
+  integrationId    String          @map("integration_id")
+  status           SyncStatus
+  startedAt        DateTime        @default(now()) @map("started_at")
+  completedAt      DateTime?       @map("completed_at")
+  recordsProcessed Int             @default(0) @map("records_processed")
+  findingsCreated  Int             @default(0) @map("findings_created")
+  findingsUpdated  Int             @default(0) @map("findings_updated")
+  error            String?
+  details          Json?
+  integration      CASBIntegration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+
+  @@index([integrationId])
+  @@map("integration_sync_logs")
+}
+
+model UserIntegration {
+  id                    String   @id @default(uuid())
+  userId                String   @map("user_id")
+  provider              String
+  /// Non-secret provider settings only. Secret-bearing values are prohibited.
+  publicConfig          Json     @map("config")
+  /// Envelope-encrypted credential payload; never plaintext JSON.
+  credentialsCiphertext Bytes?   @map("credentials_ciphertext")
+  credentialsKeyId      String?  @map("credentials_key_id")
+  credentialsVersion    Int      @default(1) @map("credentials_version")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+  @@map("user_integrations")
+}
+
+model VulnerabilityTemplate {
+  id               String                      @id @default(uuid())
+  templateId       String                      @unique @map("template_id")
+  title            String
+  severity         FindingSeverity
+  category         String?
+  description      String
+  recommendation   String?
+  createdAt        DateTime                    @default(now()) @map("created_at")
+  updatedAt        DateTime                    @updatedAt @map("updated_at")
+  cvssScore        Float?                      @map("cvss_score")
+  assetProfiles    AssetProfileVulnerability[]
+  questionTriggers QuestionRiskTrigger[]       @relation("VulnerabilityTriggers")
+  controls         Control[]                   @relation("ControlToVulnerabilityTemplate")
+
+  @@map("vulnerability_templates")
+}
+
+model ThreatTemplate {
+  id               String                @id @default(uuid())
+  templateId       String                @unique @map("template_id")
+  title            String
+  likelihood       String
+  impact           String
+  category         String
+  description      String
+  createdAt        DateTime              @default(now()) @map("created_at")
+  updatedAt        DateTime              @updatedAt @map("updated_at")
+  stride           String?
+  assetProfiles    AssetProfileThreat[]
+  questionTriggers QuestionRiskTrigger[] @relation("ThreatTriggers")
+  controls         Control[]             @relation("ControlToThreatTemplate")
+
+  @@map("threat_templates")
+}
+
+model QuestionRiskTrigger {
+  id               String                 @id @default(uuid())
+  questionId       String                 @map("question_id")
+  vulnerabilityId  String?                @map("vulnerability_id")
+  threatId         String?                @map("threat_id")
+  triggerCondition String                 @map("trigger_condition")
+  question         QuestionnaireQuestion  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  threat           ThreatTemplate?        @relation("ThreatTriggers", fields: [threatId], references: [id])
+  vulnerability    VulnerabilityTemplate? @relation("VulnerabilityTriggers", fields: [vulnerabilityId], references: [id])
+
+  @@index([questionId])
+  @@index([vulnerabilityId])
+  @@index([threatId])
+  @@map("question_risk_triggers")
+}
+
+model AssetProfile {
+  id              String                      @id @default(uuid())
+  name            String                      @unique
+  assetCategory   String                      @map("asset_category")
+  assetType       String                      @map("asset_type")
+  platform        String?
+  conditions      String?
+  createdAt       DateTime                    @default(now()) @map("created_at")
+  updatedAt       DateTime                    @updatedAt @map("updated_at")
+  threats         AssetProfileThreat[]
+  vulnerabilities AssetProfileVulnerability[]
+
+  @@map("asset_profiles")
+}
+
+model AssetProfileVulnerability {
+  profileId       String                @map("profile_id")
+  vulnerabilityId String                @map("vulnerability_id")
+  profile         AssetProfile          @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  vulnerability   VulnerabilityTemplate @relation(fields: [vulnerabilityId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, vulnerabilityId])
+  @@map("asset_profile_vulnerabilities")
+}
+
+model AssetProfileThreat {
+  profileId String         @map("profile_id")
+  threatId  String         @map("threat_id")
+  profile   AssetProfile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  threat    ThreatTemplate @relation(fields: [threatId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, threatId])
+  @@map("asset_profile_threats")
+}
+
+model DocumentChunk {
+  id         String                 @id @default(uuid())
+  evidenceId String                 @map("evidence_id")
+  content    String
+  chunkIndex Int                    @map("chunk_index")
+  metadata   Json?
+  vector     Unsupported("vector")?
+  createdAt  DateTime               @default(now()) @map("created_at")
+  evidence   Evidence               @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+  tags       Tag[]                  @relation("ChunkTags")
+
+  @@index([evidenceId])
+  @@map("document_chunks")
+}
+
+model ProwlerScan {
+  id            String           @id @default(uuid())
+  provider      String
+  regions       String[]
+  scanType      String
+  status        String
+  findingsCount Int              @default(0) @map("findings_count")
+  startedAt     DateTime         @default(now()) @map("started_at")
+  completedAt   DateTime?        @map("completed_at")
+  duration      Int?
+  error         String?
+  logs          String?
+  findings      ProwlerFinding[]
+
+  @@map("prowler_scans")
+}
+
+model ProwlerFinding {
+  id             String      @id @default(uuid())
+  scanId         String      @map("scan_id")
+  authMethod     String?     @map("auth_method")
+  timestamp      DateTime?
+  accountUid     String?     @map("account_uid")
+  accountId      String?     @map("account_id")
+  checkId        String      @map("check_id")
+  checkTitle     String      @map("check_title")
+  checkType      String?     @map("check_type")
+  serviceName    String?     @map("service_name")
+  serviceId      String?     @map("service_id")
+  resourceName   String?     @map("resource_name")
+  resourceType   String?     @map("resource_type")
+  region         String?
+  status         String
+  statusExtended String?     @map("status_extended")
+  severity       String
+  description    String?
+  risk           String?
+  remediation    String?
+  docUrl         String?     @map("doc_url")
+  compliance     Json?
+  relatedUrl     String?     @map("related_url")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  scan           ProwlerScan @relation(fields: [scanId], references: [id], onDelete: Cascade)
+
+  @@index([checkId])
+  @@index([status])
+  @@index([severity])
+  @@map("prowler_findings")
+}
+
+model QuestionnaireQuestion {
+  id           String                  @id @default(uuid())
+  frameworkId  String                  @map("framework_id")
+  controlId    String?                 @map("control_id")
+  text         String
+  description  String?
+  type         String                  @default("binary")
+  options      Json?
+  order        Int                     @default(0)
+  createdAt    DateTime                @default(now()) @map("created_at")
+  updatedAt    DateTime                @updatedAt @map("updated_at")
+  riskTriggers QuestionRiskTrigger[]
+  control      Control?                @relation(fields: [controlId], references: [id])
+  framework    Framework               @relation(fields: [frameworkId], references: [id], onDelete: Cascade)
+  responses    QuestionnaireResponse[]
+
+  @@index([frameworkId])
+  @@index([controlId])
+  @@map("questionnaire_questions")
+}
+
+model QuestionnaireResponse {
+  id         String                @id @default(uuid())
+  projectId  String                @map("project_id")
+  questionId String                @map("question_id")
+  userId     String                @map("user_id")
+  answer     String
+  evidenceId String?               @map("evidence_id")
+  aiFeedback String?               @map("ai_feedback")
+  isAccepted Boolean?              @map("is_accepted")
+  createdAt  DateTime              @default(now()) @map("created_at")
+  updatedAt  DateTime              @updatedAt @map("updated_at")
+  evidence   Evidence?             @relation(fields: [evidenceId], references: [id])
+  project    Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  question   QuestionnaireQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  user       User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, questionId])
+  @@index([projectId])
+  @@index([questionId])
+  @@index([userId])
+  @@index([evidenceId])
+  @@map("questionnaire_responses")
+}
+
+model AgentMemory {
+  id         String                 @id @default(uuid())
+  projectId  String?                @map("project_id")
+  customerId String                 @map("customer_id")
+  category   String?
+  content    String
+  summary    String?
+  source     String?
+  evidenceId String?                @map("evidence_id")
+  metadata   Json?
+  createdAt  DateTime               @default(now()) @map("created_at")
+  updatedAt  DateTime               @updatedAt @map("updated_at")
+  embedding  Unsupported("vector")?
+  memoryType String                 @map("memory_type")
+  userId     String?                @map("user_id")
+  customer   User                   @relation("CustomerMemory", fields: [customerId], references: [id], onDelete: Cascade)
+  evidence   Evidence?              @relation(fields: [evidenceId], references: [id])
+  project    Project?               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([customerId, projectId])
+  @@map("agent_memories")
+}
+
+model ComplianceTask {
+  id               String    @id @default(uuid())
+  customerId       String    @map("customer_id")
+  projectId        String?   @map("project_id")
+  title            String
+  description      String?
+  category         String
+  status           String    @default("OPEN")
+  priority         String    @default("medium")
+  dueDate          DateTime? @map("due_date")
+  completedAt      DateTime? @map("completed_at")
+  sourceDocumentId String?   @map("source_document_id")
+  isManual         Boolean   @default(false) @map("is_manual")
+  evidenceUrl      String?   @map("evidence_url")
+  evidenceNotes    String?
+  metadata         Json?
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  customer         User      @relation("CustomerComplianceTasks", fields: [customerId], references: [id], onDelete: Cascade)
+  project          Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sourceDocument   Evidence? @relation(fields: [sourceDocumentId], references: [id])
+
+  @@unique([projectId, category, sourceDocumentId])
+  @@index([customerId, projectId])
+  @@map("compliance_tasks")
+}
+
+model TechStackDiscrepancy {
+  id              String   @id @default(uuid())
+  projectId       String   @map("project_id")
+  onboardingStack Json?    @map("onboarding_stack")
+  extractedStack  Json?    @map("extracted_stack")
+  status          String   @default("OPEN")
+  resolvedStack   Json?    @map("resolved_stack")
+  resolvedById    String?  @map("resolved_by_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("tech_stack_discrepancies")
+}
+
+enum ProjectStatus {
+  pending
+  in_progress
+  review_pending
+  approved
+  rejected
+  returned
+  completed
+}
+
+enum UserRole {
+  admin
+  auditor
+  customer
+  manager
+  reviewer
+  compliance
+  employee
+}
+
+enum UserStatus {
+  Active
+  Inactive
+}
+
+enum AgentPlatform {
+  windows
+  macos
+  linux
+  cloud
+}
+
+enum AgentStatus {
+  Active
+  Inactive
+  Pending
+  Offline
+  Error
+}
+
+enum EvidenceType {
+  document
+  screenshot
+  log
+  network
+  config
+  image
+  audio
+  video
+  spreadsheet
+  pdf
+  other
+}
+
+enum AuditSeverity {
+  Low
+  Medium
+  High
+}
+
+enum CourseStatus {
+  NotStarted @map("Not Started")
+  InProgress @map("In Progress")
+  Completed
+}
+
+enum ActivityStatus {
+  Accepted
+  Rejected
+  Pending
+}
+
+enum TagSource {
+  manual
+  tagging_engine
+}
+
+enum CASBIntegrationType {
+  saas_office365
+  saas_google_workspace
+  saas_salesforce
+  saas_slack
+  saas_github
+  saas_aws
+  saas_azure
+  saas_gcp
+  onprem_exchange
+  onprem_sharepoint
+  onprem_active_directory
+  casb_netskope
+  casb_mcafee_mvision
+  casb_zscaler
+  casb_cisco_cloudlock
+  casb_cloudflare
+  agent_endpoint
+  agent_network
+  vps_ssh
+  kubernetes_k8s
+  saas_okta
+}
+
+enum IntegrationStatus {
+  pending
+  active
+  failed
+  disabled
+  syncing
+}
+
+enum AuthType {
+  oauth2
+  api_key
+  saml
+  certificate
+  basic_auth
+  ssh_key
+  ssh_password
+  kubeconfig
+}
+
+enum FindingSeverity {
+  critical
+  high
+  medium
+  low
+  info
+}
+
+enum FindingCategory {
+  data_leak
+  malware
+  unauthorized_access
+  policy_violation
+  compliance_gap
+  misconfiguration
+  anomaly
+  suspicious_activity
+  vulnerability
+  other
+  threat
+}
+
+enum FindingStatus {
+  open
+  investigating
+  in_progress
+  resolved
+  false_positive
+  accepted_risk
+  dismissed
+}
+
+enum ChunkingStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  SKIPPED
+}
+
+enum DownloadStatus {
+  PENDING
+  DOWNLOADING
+  COMPLETED
+  FAILED
+}
+
+enum SyncStatus {
+  running
+  completed
+  failed
+  cancelled
+}
+
+model AiLimit {
+  id        String   @id @default(uuid())
+  type      String   // 'GLOBAL', 'TENANT', 'USER'
+  entityId  String?  @map("entity_id") // tenantId or userId (null for GLOBAL)
+  limit     Int      // requests per minute
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([type, entityId])
+  @@map("ai_limits")
+}
+
+enum ControlStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  IMPLEMENTED
+  NOT_IN_PLACE
+  NOT_APPLICABLE
+}
+
+model WebsiteScan {
+  id              String   @id @default(uuid())
+  url             String   @unique
+  domain          String
+  siteType        String   @map("site_type")
+  tier            String   @default("Website")
+  platformConfidence Int   @default(0) @map("platform_confidence")
+  subCategory     String   @default("Website") @map("sub_category")
+  complianceScore Int      @map("compliance_score")
+  scoreBreakdown  Json     @map("score_breakdown")
+  missingPolicies String[] @map("missing_policies")
+  hsts            Boolean
+  csp             Boolean
+  xFrameOptions   Boolean  @map("x_frame_options")
+  xContentTypeOptions Boolean @map("x_content_type_options")
+  referrerPolicy  Boolean  @map("referrer_policy")
+  secretsCount    Int      @map("secrets_count")
+  maliciousCount  Int      @map("malicious_count")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("website_scans")
+}
