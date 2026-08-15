@@ -1,0 +1,19 @@
+{
+  "name": "@cybergaar/data-contracts",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "files": [
+    "service-access.json",
+    "service-access.schema.json",
+    "README.md"
+  ],
+  "scripts": {
+    "generate:roles": "node scripts/generate-roles.mjs",
+    "check": "node scripts/validate-contract.mjs && node scripts/generate-roles.mjs --check"
+  },
+  "engines": {
+    "node": "22.20.0"
+  }
+}

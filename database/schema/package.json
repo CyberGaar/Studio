@@ -15,6 +15,8 @@
     "generate:check": "prisma generate && node scripts/assert-generated-untracked.mjs",
     "migration:baseline": "prisma migrate diff --from-empty --to-schema=prisma/schema.prisma --script --output=prisma/migrations/20260809_000000_canonical_baseline/migration.sql",
     "migration:check": "node scripts/assert-baseline-reproducible.mjs",
+    "roles:apply": "node scripts/apply-service-roles.mjs",
+    "roles:check": "node scripts/assert-service-role-boundaries.mjs",
     "fixtures:apply": "node scripts/apply-synthetic-fixtures.mjs"
   },
   "dependencies": {

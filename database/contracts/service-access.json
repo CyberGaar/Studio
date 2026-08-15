@@ -1,0 +1,46 @@
+{
+  "$schema": "./service-access.schema.json",
+  "contractVersion": "0.1.0",
+  "schemaSha256": "12c4e75b56a5803695f28be3eb8ffcc366f80affc878550bb46864af8d7dbf6d",
+  "migrationRole": "cybergaar_backend_migrator",
+  "services": [
+    {
+      "service": "backend",
+      "role": "cybergaar_backend_app",
+      "allTables": true,
+      "read": [],
+      "write": [],
+      "deniedProbe": "schema:create"
+    },
+    {
+      "service": "ai-service",
+      "role": "cybergaar_ai_app",
+      "read": ["users", "projects", "frameworks", "controls", "project_controls", "document_types", "evidence", "project_evidence_links", "document_chunks", "agent_memories", "conversations", "conversation_participants", "messages", "website_scans"],
+      "write": ["evidence", "project_evidence_links", "document_chunks", "agent_memories", "conversations", "conversation_participants", "messages", "website_scans"],
+      "columnUpdates": { "users": ["dashboard_view"] },
+      "deniedColumnUpdate": { "table": "users", "column": "name" },
+      "deniedProbe": "casb_integrations"
+    },
+    {
+      "service": "fleet",
+      "role": "cybergaar_fleet_app",
+      "read": ["users", "projects", "frameworks", "project_controls", "agents", "agent_deployments", "asset_profiles", "asset_profile_vulnerabilities", "asset_profile_threats", "findings", "notifications", "evidence"],
+      "write": ["agents", "agent_deployments", "asset_profiles", "asset_profile_vulnerabilities", "asset_profile_threats", "findings", "notifications", "evidence"],
+      "deniedProbe": "casb_integrations"
+    },
+    {
+      "service": "viewer",
+      "role": "cybergaar_viewer_app",
+      "read": ["users", "projects", "project_shares"],
+      "write": [],
+      "deniedProbe": "casb_integrations"
+    },
+    {
+      "service": "database-workers",
+      "role": "cybergaar_worker_app",
+      "read": ["agents", "projects", "project_controls", "evidence", "project_evidence_links", "document_chunks", "findings", "prowler_scans", "prowler_findings", "agent_memories"],
+      "write": ["evidence", "project_evidence_links", "document_chunks", "findings", "prowler_scans", "prowler_findings", "agent_memories"],
+      "deniedProbe": "user_integrations"
+    }
+  ]
+}
