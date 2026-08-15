@@ -18,7 +18,16 @@ $contentPatterns = @(
 
 $candidatePaths = @(git -C $root ls-files --cached --others --exclude-standard)
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-$files = @($candidatePaths | ForEach-Object { Get-Item -LiteralPath (Join-Path $root $_) } | Where-Object { -not $_.PSIsContainer })
+$files = New-Object System.Collections.Generic.List[System.IO.FileInfo]
+foreach ($relativePath in $candidatePaths) {
+    $fullPath = [System.IO.Path]::GetFullPath((Join-Path $root $relativePath))
+    if ([System.IO.File]::Exists($fullPath)) {
+        $files.Add([System.IO.FileInfo]::new($fullPath))
+    } elseif (-not [System.IO.Directory]::Exists($fullPath)) {
+        $normalized = $relativePath.Replace('\', '/')
+        $problems.Add("missing-repository-path:$normalized")
+    }
+}
 
 foreach ($file in $files) {
     $relative = $file.FullName.Substring($root.Length + 1).Replace('\', '/')
