@@ -25,5 +25,6 @@ The detailed evidence for pre-flight work is retained outside the public reposit
 | 0.3 Team migration agent contract | `migration/0.3-agent-contract` | | N/A | Phase 0 validation passed | Gitleaks: zero findings; disclosure gate passed | | | Ready for review |
 | 1.1 Canonical Prisma schema | `migration/1.1-prisma-schema` | `84a64328d9683caff5a24c02a583c9499726101f` | Passed | Static checks and disposable empty/populated PostgreSQL rehearsal passed | Plaintext credentials removed; database-enforced tenant isolation passed | #6 | `cafe888e0e925e8850048d0b0b4f12d0af78a775` | Merged |
 | 1.2 Shared data contract and roles | `migration/1.2-shared-data-contract` | | Passed | Contract validation, deterministic role generation, and disposable role-boundary rehearsal passed | Five application roles denied DDL, migration-role escalation, and unrelated-table probes | | | In progress |
+| 2.1 Backend build scaffold | `migration/2.1-backend-scaffold` | | Passed | Strict lint, TypeScript build, 4 native tests, 100% scaffold coverage, and hardened standalone container smoke passed | npm audit, Semgrep, and Gitleaks: zero findings; Trivy: zero High/Critical findings | | | In progress |
 
 Allowed statuses are `Not started`, `In progress`, `Blocked`, `Ready for review`, `Ready for staging`, `Staging passed`, `Merged`, and `Verified`.
