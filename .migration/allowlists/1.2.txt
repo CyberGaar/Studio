@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2026 CyberGaar (Omer Rastgar)
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Exact public paths authorized for migration task 1.2.
+.migration/active-task.txt
+.migration/allowlists/1.2.txt
+MIGRATION_LEDGER.md
+database/contracts/README.md
+database/contracts/package-lock.json
+database/contracts/package.json
+database/contracts/scripts/generate-roles.mjs
+database/contracts/scripts/validate-contract.mjs
+database/contracts/service-access.json
+database/contracts/service-access.schema.json
+database/schema/README.md
+database/schema/package.json
+database/schema/scripts/apply-service-roles.mjs
+database/schema/scripts/assert-service-role-boundaries.mjs
+database/schema/sql/service-roles.sql
+docs/migration/tasks/1.2-shared-data-contract.md
+scripts/validate-task-1.2.ps1
