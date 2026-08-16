@@ -9,10 +9,10 @@ Prisma and related dependencies are exact-pinned. Generated client output is cre
 
 ## Synthetic accounts
 
-`npm run fixtures:apply` creates fictional `.example.invalid` accounts using fresh random passwords. It logs only usernames and roles. Login credentials are written to `.runtime/demo-credentials.json` with restricted permissions; this path is ignored by Git and is destroyed with the isolated environment.
+`pnpm run fixtures:apply` creates fictional `.example.invalid` accounts using fresh random passwords. It logs only usernames and roles. Login credentials are written to `.runtime/demo-credentials.json` with restricted permissions; this path is ignored by Git and is destroyed with the isolated environment.
 
 The fixture command is for disposable local or feature-branch staging databases only. It must never target production.
 
 ## Service database roles
 
-`npm run roles:apply` installs generated `NOLOGIN` group roles from the versioned data contract. `npm run roles:check` creates short-lived random login roles and proves that every application role can read an allowed table, cannot create schema objects, cannot assume the migration role, and cannot read its unrelated-table probe. Test credentials are never logged, and the temporary roles are dropped after each assertion.
+`pnpm run roles:apply` installs generated `NOLOGIN` group roles from the versioned data contract. `pnpm run roles:check` creates short-lived random login roles and proves that every application role can read an allowed table, cannot create schema objects, cannot assume the migration role, and cannot read its unrelated-table probe. Test credentials are never logged, and the temporary roles are dropped after each assertion.

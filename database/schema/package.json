@@ -6,10 +6,10 @@
   "license": "AGPL-3.0-or-later",
   "engines": {
     "node": "22.20.0",
-    "npm": "10.9.3"
+    "pnpm": "11.20.0"
   },
   "scripts": {
-    "check": "npm run validate && npm run generate:check && npm run migration:check",
+    "check": "pnpm run validate && pnpm run generate:check && pnpm run migration:check",
     "validate": "prisma validate",
     "generate": "prisma generate",
     "generate:check": "prisma generate && node scripts/assert-generated-untracked.mjs",

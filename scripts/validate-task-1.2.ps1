@@ -8,7 +8,7 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $required = @(
     'database/contracts/package.json',
-    'database/contracts/package-lock.json',
+    'pnpm-lock.yaml',
     'database/contracts/service-access.json',
     'database/contracts/service-access.schema.json',
     'database/contracts/scripts/generate-roles.mjs',
@@ -36,9 +36,9 @@ if (@($contract.services | Where-Object { $_.allTables }).Count -ne 1) {
 
 Push-Location (Join-Path $root 'database/contracts')
 try {
-    $npmName = if ([System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT) { 'npm.cmd' } else { 'npm' }
-    $npmCommand = (Get-Command $npmName -ErrorAction Stop).Source
-    & $npmCommand run check
+    $pnpmName = if ([System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT) { 'pnpm.cmd' } else { 'pnpm' }
+    $pnpmCommand = (Get-Command $pnpmName -ErrorAction Stop).Source
+    & $pnpmCommand run check
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 } finally {
     Pop-Location
