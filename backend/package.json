@@ -1,0 +1,29 @@
+{
+  "name": "@cybergaar/backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CyberGaar Studio backend service scaffold",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "engines": {
+    "node": "22.20.0",
+    "npm": "10.9.3"
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "clean": "node --eval \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "lint": "eslint . --max-warnings 0",
+    "start": "node dist/src/index.js",
+    "test": "npm run clean && npm run build && node --test --experimental-test-coverage --test-coverage-branches=70 --test-coverage-functions=70 --test-coverage-lines=70 --test-coverage-include=dist/src/**/*.js --test-coverage-exclude=dist/src/index.js dist/test/config.test.js dist/test/server.test.js",
+    "check": "npm run lint && npm test"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.2",
+    "@types/node": "22.20.1",
+    "eslint": "9.39.2",
+    "eslint-plugin-security": "3.0.1",
+    "globals": "16.5.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.50.1"
+  }
+}
