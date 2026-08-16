@@ -9,7 +9,7 @@ $root = Split-Path -Parent $PSScriptRoot
 $packageRoot = Join-Path $root 'database/schema'
 $required = @(
     'database/schema/package.json',
-    'database/schema/package-lock.json',
+    'pnpm-lock.yaml',
     'database/schema/prisma.config.ts',
     'database/schema/prisma/schema.prisma',
     'database/schema/prisma/migration_lock.toml',
@@ -66,9 +66,9 @@ if ($fixture -notmatch '\.example\.invalid' -or $fixture -match 'password123' -o
 
 Push-Location $packageRoot
 try {
-    $npmName = if ([System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT) { 'npm.cmd' } else { 'npm' }
-    $npmCommand = (Get-Command $npmName -ErrorAction Stop).Source
-    & $npmCommand run check
+    $pnpmName = if ([System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT) { 'pnpm.cmd' } else { 'pnpm' }
+    $pnpmCommand = (Get-Command $pnpmName -ErrorAction Stop).Source
+    & $pnpmCommand run check
     exit $LASTEXITCODE
 } finally {
     Pop-Location

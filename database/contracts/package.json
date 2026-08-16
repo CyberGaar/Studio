@@ -14,6 +14,7 @@
     "check": "node scripts/validate-contract.mjs && node scripts/generate-roles.mjs --check"
   },
   "engines": {
-    "node": "22.20.0"
+    "node": "22.20.0",
+    "pnpm": "11.20.0"
   }
 }

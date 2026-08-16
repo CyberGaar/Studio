@@ -13,7 +13,7 @@ The authoritative pins are in `tools/versions.json`. Release binaries installed 
 | Local pre-commit | Change-scoped static analysis | Semgrep | Relevant staged code | Critical/High blocks; other findings require disposition |
 | Local pre-commit/push | Format, SPDX, allowlist, types, unit tests | Lefthook orchestration | Every commit/push | Any unexplained error blocks |
 | Pull request | Repository secret scan | Gitleaks | Every PR update | Any unresolved finding blocks |
-| Pull request | Dependency vulnerabilities | OSV-Scanner, npm audit, pip-audit | Changed lockfiles/manifests | Critical/High blocks |
+| Pull request | Dependency vulnerabilities | OSV-Scanner, pnpm audit, pip-audit | Changed lockfiles/manifests | Critical/High blocks |
 | Pull request | License policy | SPDX/REUSE-compatible validation | Changed files/dependencies | Unknown or prohibited license blocks |
 | Pull request | IaC and container lint | Checkov, Hadolint, Trivy | Changed IaC/container files | Critical/High blocks |
 | Scheduled/security/release | Full SAST | CodeQL and Semgrep | Weekly and security/release changes | Critical/High blocks |

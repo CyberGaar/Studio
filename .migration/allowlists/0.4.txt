@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: 2026 CyberGaar (Omer Rastgar)
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Exact public paths authorized for migration task 0.4.
+.migration/active-task.txt
+.migration/allowlists/0.4.txt
+.npmrc
+MIGRATION_LEDGER.md
+database/contracts/README.md
+database/contracts/package-lock.json
+database/contracts/package.json
+database/schema/README.md
+database/schema/package-lock.json
+database/schema/package.json
+docs/migration/tasks/0.4-pnpm-supply-chain.md
+docs/migration/tasks/1.1-prisma-schema.md
+docs/security/tooling-matrix.md
+package-lock.json
+package.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
+scripts/validate-task-0.4.ps1
+scripts/validate-task-1.1.ps1
+scripts/validate-task-1.2.ps1

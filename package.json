@@ -6,8 +6,9 @@
   "license": "AGPL-3.0-or-later",
   "engines": {
     "node": "22.20.0",
-    "npm": "10.9.3"
+    "pnpm": "11.20.0"
   },
+  "packageManager": "pnpm@11.20.0+sha512-mm8zCpW2ZEbqCI+vFSFAWooB8H/ecSTMmVjf7VLUu0NnN+ZbCPhfN7Rvy6N1CSVYrFEmK4FoRLIvY0Bu0Wa/7g==",
   "scripts": {
     "check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-phase0.ps1",
     "check:actions": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-action-pins.ps1",
