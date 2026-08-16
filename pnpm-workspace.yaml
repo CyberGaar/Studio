@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2026 CyberGaar (Omer Rastgar)
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+packages:
+  - database/contracts
+  - database/schema
+
+allowBuilds:
+  '@prisma/engines': true
+  prisma: true
+
+engineStrict: true
+fetchRetries: 5
+fetchRetryMaxtimeout: 120000
+fetchRetryMintimeout: 10000
+fetchTimeout: 600000
+minimumReleaseAge: 10080
+minimumReleaseAgeStrict: true
+saveExact: true
+sharedWorkspaceLockfile: true
+strictDepBuilds: true
