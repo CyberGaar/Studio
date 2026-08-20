@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Exact public paths authorized for migration task 0.2.
 .github/CODEOWNERS
+AGENTS.md
 .github/codeql/codeql-config.yml
 .github/dependabot.yml
 .github/pull_request_template.md
@@ -15,6 +16,7 @@
 .semgrep.yml
 MIGRATION_LEDGER.md
 docs/governance/repository-policy.md
+docs/migration/agent-task-prompt.md
 docs/security/tooling-matrix.md
 lefthook.yml
 package.json
